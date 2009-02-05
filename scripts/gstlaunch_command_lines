@@ -1,0 +1,17 @@
+sending:
+gst-launch-0.10 v4l2src ! video/x-raw-yuv,width=320,height=240,framerate=\(fraction\)5/1 ! ffmpegcolorspace ! queue ! smokeenc keyframe=8 qmax=40 ! queue ! udpsink host=127.0.0.1 port=5000
+
+receiving:
+gst-launch-0.10 udpsrc port=5000 ! smokedec ! autovideosink
+
+
+sending2:
+gst-launch-0.10 v4l2src ! video/x-raw-yuv,width=320,height=240,framerate=\(fraction\)5/1 ! ffmpegcolorspace ! jpegenc ! udpsink host=127.0.0.1 port=5000
+
+receiving2:
+gst-launch-0.10 udpsrc port=5000 ! jpegdec ! autovideosink
+
+multicast sending:
+gst-launch-0.10 v4l2src ! video/x-raw-yuv,width=320,height=240,framerate=\(fraction\)5/1 ! ffmpegcolorspace ! jpegenc ! multiudpsink clients='scratchy:5000,willy:5000'
+
+/vol/wbsopt/ThirdLife/linden-bin/current/secondlife -loginpage http://slartibartfast:39000/?method=login -loginuri http://slartibartfast:39000/
