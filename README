@@ -1,1 +1,61 @@
-Networking Test test test.
+//////////////////////////////////////////////////////////////////////////
+    
+    SoA-Streamer (Sociable Agents Group, University of Bielefeld)
+    by Erik Weitnauer, eweitnauer@gmail.com
+
+//////////////////////////////////////////////////////////////////////////
+
+    Hello, here you find a short introduction to what soastreamer is and
+    how to use it.
+    
+    Soastreamer is a minimal audio and video streaming solution written
+    in plain C using the gnome liberies, mainly gstreamer.
+    The idea is to have the program running on a computer that is
+    connected to either a camera or microphone and then stream the data to
+    the network to a number of ip addresses. The program is controlled by
+    sending udp commands to it.
+    
+    Example setup:
+                              
+       -----commands------------ COMPUTER A
+       |                        (udp_client) 
+       v    
+    COMPUTER B                                                 COMPUTER C
+    (soa_videostreamer) -------------udp-------------------> (media player)
+                            |
+                            ---------udp------------------->   COMPUTER D
+                                                             (media player)
+
+//////////////////////////////////////////////////////////////////////////
+
+    How to compile?
+    
+    On an Ubuntu, you should have the gstreamer dev packages installed as
+    well as the gstreamer good plugins (for the multiudpsink element).
+    Then in the audio / video directory run 'make' to build the program.
+    
+    For sending commands via udp to the streaming program, you probably
+    also want to build the 'udp_client' in the 'network' directory.
+
+//////////////////////////////////////////////////////////////////////////
+
+    Usage
+    
+    Video:
+    Connect an supported USB camera to the computer and then run the
+    'soa_videostreamer' program. (By default, the video0 device will be used
+    for streaming). As parameter pass any portnumber you want to use for
+    receiving commands.
+    Then start the 'udp_client' program with localhost and the portnumber
+    you used above as parameters. Now you should be able to send commands
+    to the streamer:
+    
+       * add				 <hostname:port>
+       * remove			 <hostname:port>
+       * set_clients <hostname:port,hostname:port,...>
+       * clear    	 -
+       * print			 -
+       * exit
+       
+    Audio:
+    same as above
