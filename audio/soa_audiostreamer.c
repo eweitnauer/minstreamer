@@ -174,23 +174,37 @@ main (gint   argc,
   pipeline = gst_pipeline_new ("my_pipeline");
 
 	// create elements
-  source = gst_element_factory_make("pulsesrc", "source");
+  source = gst_element_factory_make("alsasrc", "source");
 	filter = gst_element_factory_make("audioconvert", "filter");
-	filter2 = gst_element_factory_make("cutter", "filter2");
+//	filter2 = gst_element_factory_make("cutter", "filter2");
+	filter2 = gst_element_factory_make("wavenc", "filter2");
 	sink = gst_element_factory_make("multiudpsink", "sink");
 	if (!source || !filter || !filter2 || !sink) {
     if (!source) g_print ("[E] failed to create alsasrc element\n");
     if (!filter) g_print ("[E] failed to create audioconvert element\n");
-    if (!filter2) g_print ("[E] failed to create cutter element\n");
+    //if (!filter2) g_print ("[E] failed to create cutter element\n");
+    if (!filter2) g_print ("[E] failed to create wavenc element\n");
     if (!sink) g_print ("[E] failed to create multiudpsink element\n");
     return -1;
   }
-
+  
+  g_object_set(G_OBJECT(source), "device", "plughw:1,0", NULL);
+  
 	// add to pipeline before linking
 	gst_bin_add_many(GST_BIN(pipeline), source, filter, filter2, sink, NULL);
+
+	GstCaps *caps = gst_caps_new_simple("audio/x-raw-int",
+                                      "rate", G_TYPE_INT, 16000,
+                                      "channels", G_TYPE_INT, 1,
+                                      "depth", G_TYPE_INT, 16,
+                                      NULL);
+	
 	// link
-	if (!gst_element_link_many(source, filter, filter2, sink, NULL)) {
+	if (!gst_element_link_filtered(source, filter, caps) ||
+	    !gst_element_link(filter, filter2) ||
+	    !gst_element_link(filter2, sink)) {
 		g_print("[E] failed to link elements");
+	  gst_object_unref (pipeline);
 		return -1;
 	}
 	// start playing

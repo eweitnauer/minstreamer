@@ -1,2 +1,2 @@
 #!/bin/bash
-gst-launch-0.10 v4l2src ! queue ! videorate ! video/x-raw-yuv,width=960,height=720,framerate=30/1 ! ffmpegcolorspace ! theoraenc quality=75 !  queue ! oggmux name=mux pulsesrc ! audiorate ! audio/x-raw-int,rate=16000,channels=1,depth=16 ! queue ! audioconvert ! vorbisenc !  mux. mux. ! queue ! filesink sync=true location=$1 qos=true
+gst-launch-0.10 v4l2src ! queue ! videorate ! video/x-raw-yuv,width=960,height=720,framerate=30/1 ! ffmpegcolorspace ! theoraenc quality=75 !  queue ! oggmux name=mux alsasrc device=plughw:1,0 ! audiorate ! audio/x-raw-int,rate=16000,channels=1,depth=16 ! queue ! audioconvert ! vorbisenc !  mux. mux. ! queue ! filesink sync=true location=$1 qos=true

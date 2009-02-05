@@ -175,19 +175,29 @@ main (gint   argc,
 
 	// create elements
   source = gst_element_factory_make("v4l2src", "source");
-	filter = gst_element_factory_make("jpegenc", "filter");
+	filter = gst_element_factory_make("ffmpegcolorspace", "filter");
+	filter2 = gst_element_factory_make("jpegenc", "filter2");
 	sink = gst_element_factory_make("multiudpsink", "sink");
-	if (!source || !filter || !sink) {
+	if (!source || !filter || !filter2 || !sink) {
     if (!source) g_print ("[E] failed to create v4l2src element\n");
-    if (!filter) g_print ("[E] failed to create jpegenc element\n");
+    if (!filter) g_print ("[E] failed to create ffmpegcolorspace element\n");
+    if (!filter2) g_print ("[E] failed to create jpegenc element\n");
     if (!sink) g_print ("[E] failed to create multiudpsink element\n");
     return -1;
   }
 
 	// add to pipeline before linking
-	gst_bin_add_many(GST_BIN(pipeline), source, filter, sink, NULL);
+	gst_bin_add_many(GST_BIN(pipeline), source, filter, filter2, sink, NULL);
+	
+	GstCaps *caps = gst_caps_new_simple("video/x-raw-yuv",
+                                      "width", G_TYPE_INT, 640,
+                                      "height", G_TYPE_INT, 480,
+                                      "framerate", GST_TYPE_FRACTION, 30, 1,
+                                      NULL);
 	// link
-	if (!gst_element_link_many(source, filter, sink, NULL)) {
+	if (!gst_element_link_filtered(source, filter, caps) ||
+	    !gst_element_link(filter, filter2) ||
+ 	    !gst_element_link(filter2, sink)) {
 		g_print("[E] failed to link elements");
 		return -1;
 	}

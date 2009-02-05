@@ -64,13 +64,27 @@ main (gint   argc,
 	source = gst_element_factory_make("v4l2src", "source");
 	sink = gst_element_factory_make("autovideosink", "sink");
 	
+	GstCaps *caps = gst_caps_new_simple("video/x-raw-yuv",
+                                      "width", G_TYPE_INT, 640,
+                                      "height", G_TYPE_INT, 480,
+                                      "framerate", GST_TYPE_FRACTION, 30, 1,
+                                      NULL);
+
 	// add to pipeline before linking
 	gst_bin_add_many(GST_BIN(pipeline), source, sink, NULL);
 	
 	// link
-	if (!gst_element_link_many(source, sink, NULL)) {
-		g_warning("Failed to link elements");
-	}
+//	if (!gst_element_link_many(source, sink, NULL)) {
+//		g_warning("Failed to link elements");
+//	}
+
+  if(!gst_element_link_filtered(source, sink, caps)) {
+	  g_warning("GStreamer: cannot link v4l2src -> caps\n");
+    gst_object_unref(pipeline);
+    return 0;
+  }
+  gst_caps_unref(caps);
+
 	// start playing
 	gst_element_set_state (GST_ELEMENT (pipeline), GST_STATE_PLAYING);
 
