@@ -1,0 +1,18 @@
+sending:
+gst-launch-0.10 alsasrc device=plughw:1,0 ! flacenc ! udpsink host=localhost port=5000
+
+receiving:
+gst-launch-0.10 udpsrc port=5000 ! flacdec !  autoaudiosink
+
+experiments with rtp (not working):
+sending 1:
+gst-launch-0.10 -m gstrtpbin name=rtp alsasrc device=plughw:1,0  ! audioconvert ! vorbisenc ! rtpvorbispay ! rtp.send_rtp_sink_0 rtp.send_rtp_src_0 ! udpsink port=5000
+
+receiving 1:
+gst-launch-0.10 -m gstrtpbin name=rtp ! udpsrc caps="application/x-rtp,media=(string)audio,clock-rate=(int)8000,encoding-name=(string)VORBIS" port=5000 ! rtp.recv_rtp_sink_0 rtp. ! fakesink dump=1
+
+sending 2:
+gst-launch-0.10 alsasrc device=plughw:1,0  ! audioconvert ! rtpL16pay ! rtpbin localport=6000 destinations=localhost:5000
+
+receiving 2:
+gst-launch-0.10 -m rtpbin localport=5000 ! fakesink dump=1
