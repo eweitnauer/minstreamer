@@ -2,7 +2,7 @@ sending:
 gst-launch-0.10 alsasrc device=plughw:1,0 ! flacenc ! udpsink host=localhost port=5000
 
 receiving:
-gst-launch-0.10 udpsrc port=5000 ! flacdec !  autoaudiosink
+gst-launch-0.10 udpsrc port=5000 ! flacdec !  alsasink
 
 experiments with rtp (not working):
 sending 1:
